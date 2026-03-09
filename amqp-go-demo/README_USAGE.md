@@ -39,7 +39,36 @@ go run demo/Publisher.go
 
 ---
 
-### 方式 2：运行 amqp091/pub/producer.go（推荐 ⭐）
+### 方式 2：运行 demo/Consumer.go（阿里云 AMQP 消费者）
+
+消费者用于接收消息，会持续运行等待消息：
+
+```bash
+# 启动消费者
+make run-consumer
+
+# 或直接运行
+go run demo/Consumer.go
+```
+
+**特点：**
+- ✅ 自动连接配置的队列
+- ✅ 持续监听新消息
+- ✅ 按顺序处理消息
+- ⚠️ 需要手动停止（Ctrl+C）
+
+**实时测试：**
+```bash
+# 终端 1：启动消费者
+make run-consumer
+
+# 终端 2：发送消息
+make run-publisher
+```
+
+---
+
+### 方式 3：运行 amqp091/pub/producer.go（推荐 ⭐）
 
 这是通用版本，支持灵活的命令行参数配置：
 
@@ -96,7 +125,7 @@ make run-producer CONTINUOUS=true
 
 ---
 
-### 方式 3：直接运行（最灵活）
+### 方式 4：直接运行（最灵活）
 
 ```bash
 # 完全手动指定所有参数

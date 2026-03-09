@@ -4,7 +4,7 @@
 run-publisher:
 	go run demo/Publisher.go
 
-# 运行消费者 (demo/Consumer.go)
+# 运行消费者 (demo/Consumer.go - 阿里云 AMQP 专用版)
 run-consumer:
 	go run demo/Consumer.go
 
