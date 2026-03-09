@@ -70,6 +70,9 @@ func publish(publishOkCh <-chan struct{}, confirmsCh chan<- *amqp.DeferredConfir
 	if strings.Contains(*uri, "amqps://") {
 		tlsfg := &tls.Config{InsecureSkipVerify: true}
 		conn, err = amqp.DialTLS(*uri, tlsfg)
+		if err != nil {
+			ErrLog.Fatalf("producer: error in TLS dial: %s", err)
+		}
 	} else {
 		conn, err = amqp.DialConfig(*uri, config)
 		if err != nil {

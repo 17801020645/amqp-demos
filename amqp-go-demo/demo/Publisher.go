@@ -12,14 +12,14 @@ func main() {
 
 	var buf bytes.Buffer
 
-	userName := "username"                          // 请替换成您阿里云AMQP控制台Username
-	password := "password"                          // 请替换成您阿里云AMQP控制台Username
-	endpoint := "rabbitmq-xxx.mq.amqp.aliyuncs.com" // 请从控制台获取。
-	vhost := "your-vhost"                           // 请从控制台获取。
-	exchangeName := "your-exchangeName"             // 请从控制台获取。
+	userName := "MjpyYWJiaXRtcS1jbi04bGw0b3NxbmYwMTpMVEFJNXQ2REY0RDZkVTgyaERYRlI0QUw="                          // 请替换成您阿里云AMQP控制台Username
+	password := "MkMxN0Q5REE4RDQ3MzNCRDJCNTlDNTI0NTU3RUNDRDA4MkQ4NzE0NzoxNzczMDI1Nzc0Njcx"                          // 请替换成您阿里云AMQP控制台Username
+	endpoint := "rabbitmq-cn-8ll4osqnf01.cn-beijing.amqp-82.net.mq.amqp.aliyuncs.com" // 请从控制台获取。
+	vhost := "demo"                           // 请从控制台获取。
+	exchangeName := "demo_exchange"             // 请从控制台获取。
 	exchangeType := "direct"
-	queueName := "your-queueName"  // 请从控制台获取。
-	routeKey := "your-routing-key" // 请从控制台获取。
+	queueName := "demo_queue"  // 请从控制台获取。
+	routeKey := "abc" // 请从控制台获取。
 	durable := true
 
 	buf.WriteString("amqp://")
