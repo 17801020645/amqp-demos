@@ -25,10 +25,10 @@ run-producer:
 run-consumer-091:
 	go run amqp091/sub/consumer.go \
 		-uri="$(or $(URI),amqp://MjpyYWJiaXRtcS1jbi04bGw0b3NxbmYwMTpMVEFJNXQ2REY0RDZkVTgyaERYRlI0QUw=:MkMxN0Q5REE4RDQ3MzNCRDJCNTlDNTI0NTU3RUNDRDA4MkQ4NzE0NzoxNzczMDI1Nzc0Njcx@rabbitmq-cn-8ll4osqnf01.cn-beijing.amqp-82.net.mq.amqp.aliyuncs.com:5672/yyh-mq)" \
-		-exchange="$(or $(EXCHANGE),topic-ex)" \
-		-exchange-type="$(or $(EXCHANGE_TYPE),topic)" \
+		-exchange="$(or $(EXCHANGE),fanout-topic)" \
+		-exchange-type="$(or $(EXCHANGE_TYPE),fanout)" \
 		-queue="$(or $(QUEUE),qa)" \
-		-key="$(or $(KEY),files.cn.hz.#)" \
+		-key="$(or $(KEY), files.cn.hz.#)" \
 		-consumer-tag="$(or $(CONSUMER_TAG),qa-consumer)" \
 		-lifetime="$(or $(LIFETIME),0s)" \
 		-verbose="$(or $(VERBOSE),true)" \
@@ -37,10 +37,10 @@ run-consumer-091:
 run-consumer-092:
 	go run amqp091/sub/consumer.go \
 		-uri="$(or $(URI),amqp://MjpyYWJiaXRtcS1jbi04bGw0b3NxbmYwMTpMVEFJNXQ2REY0RDZkVTgyaERYRlI0QUw=:MkMxN0Q5REE4RDQ3MzNCRDJCNTlDNTI0NTU3RUNDRDA4MkQ4NzE0NzoxNzczMDI1Nzc0Njcx@rabbitmq-cn-8ll4osqnf01.cn-beijing.amqp-82.net.mq.amqp.aliyuncs.com:5672/yyh-mq)" \
-		-exchange="$(or $(EXCHANGE),topic-ex)" \
-		-exchange-type="$(or $(EXCHANGE_TYPE),topic)" \
+		-exchange="$(or $(EXCHANGE),fanout-topic)" \
+		-exchange-type="$(or $(EXCHANGE_TYPE),fanout)" \
 		-queue="$(or $(QUEUE),qb)" \
-		-key="$(or $(KEY),files.cn.*.store)" \
+		-key="$(or $(KEY),queue.msgText)" \
 		-consumer-tag="$(or $(CONSUMER_TAG),qb-consumer)" \
 		-lifetime="$(or $(LIFETIME),0s)" \
 		-verbose="$(or $(VERBOSE),true)" \
