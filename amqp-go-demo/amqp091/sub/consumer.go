@@ -40,14 +40,20 @@ func main() {
 		ErrLog.Fatalf("%s", err)
 	}
 
-	SetupCloseHandler(c)
+	quit := SetupCloseHandler(c)
 
 	if *lifetime > 0 {
 		Log.Printf("running for %s", *lifetime)
-		time.Sleep(*lifetime)
+		select {
+		case <-time.After(*lifetime):
+		case <-quit:
+		}
 	} else {
 		Log.Printf("running until Consumer is done")
-		<-c.done
+		select {
+		case <-c.done:
+		case <-quit:
+		}
 	}
 
 	Log.Printf("shutting down")
@@ -64,17 +70,16 @@ type Consumer struct {
 	done    chan error
 }
 
-func SetupCloseHandler(consumer *Consumer) {
-	c := make(chan os.Signal, 2)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+func SetupCloseHandler(consumer *Consumer) <-chan struct{} {
+	quit := make(chan struct{})
+	sigCh := make(chan os.Signal, 2)
+	signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
 	go func() {
-		<-c
+		<-sigCh
 		Log.Printf("Ctrl+C pressed in Terminal")
-		if err := consumer.Shutdown(); err != nil {
-			ErrLog.Fatalf("error during shutdown: %s", err)
-		}
-		os.Exit(0)
+		close(quit)
 	}()
+	return quit
 }
 
 func NewConsumer(amqpURI, exchange, exchangeType, queueName, key, ctag, vhostName string) (*Consumer, error) {
