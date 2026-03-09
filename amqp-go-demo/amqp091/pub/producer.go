@@ -56,12 +56,6 @@ func setupCloseHandler(exitCh chan struct{}) {
 }
 
 func publish(publishOkCh <-chan struct{}, confirmsCh chan<- *amqp.DeferredConfirmation, confirmsDoneCh <-chan struct{}, exitCh chan struct{}) {
-	config := amqp.Config{
-		Vhost:      *vhost,
-		Properties: amqp.NewConnectionProperties(),
-	}
-
-	config.Properties.SetClientConnectionName("producer-with-confirms")
 	Log.Printf("producer: dialing %s", *uri)
 
 	var conn *amqp.Connection
@@ -74,6 +68,15 @@ func publish(publishOkCh <-chan struct{}, confirmsCh chan<- *amqp.DeferredConfir
 			ErrLog.Fatalf("producer: error in TLS dial: %s", err)
 		}
 	} else {
+		// 如果 URI 中已经包含 vhost，则使用 URI；否则使用 config 设置 vhost
+		config := amqp.Config{
+			Properties: amqp.NewConnectionProperties(),
+		}
+		// 只有当 vhost 不是默认值且 URI 中没有包含 vhost 时才设置
+		if *vhost != "/" && !strings.Contains(*uri, "/"+*vhost) {
+			config.Vhost = *vhost
+		}
+		config.Properties.SetClientConnectionName("producer-with-confirms")
 		conn, err = amqp.DialConfig(*uri, config)
 		if err != nil {
 			ErrLog.Fatalf("producer: error in dial: %s", err)

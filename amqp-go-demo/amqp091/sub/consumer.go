@@ -35,7 +35,7 @@ func init() {
 }
 
 func main() {
-	c, err := NewConsumer(*uri, *exchange, *exchangeType, *queue, *bindingKey, *consumerTag)
+	c, err := NewConsumer(*uri, *exchange, *exchangeType, *queue, *bindingKey, *consumerTag, *vhost)
 	if err != nil {
 		ErrLog.Fatalf("%s", err)
 	}
@@ -77,7 +77,7 @@ func SetupCloseHandler(consumer *Consumer) {
 	}()
 }
 
-func NewConsumer(amqpURI, exchange, exchangeType, queueName, key, ctag string) (*Consumer, error) {
+func NewConsumer(amqpURI, exchange, exchangeType, queueName, key, ctag, vhostName string) (*Consumer, error) {
 	c := &Consumer{
 		conn:    nil,
 		channel: nil,
@@ -87,17 +87,21 @@ func NewConsumer(amqpURI, exchange, exchangeType, queueName, key, ctag string) (
 
 	var err error
 
-	config := amqp.Config{Properties: amqp.NewConnectionProperties()}
-	config.Vhost = *vhost
-	config.Properties.SetClientConnectionName("sample-consumer")
 	Log.Printf("dialing %q", amqpURI)
 	var conn *amqp.Connection
 	// Set SSL with your certificate paths
-	if strings.Contains(*uri, "amqps://") {
+	if strings.Contains(amqpURI, "amqps://") {
 		tlsfg := &tls.Config{InsecureSkipVerify: true}
-		conn, err = amqp.DialTLS(*uri, tlsfg)
+		conn, err = amqp.DialTLS(amqpURI, tlsfg)
 	} else {
-		conn, err = amqp.DialConfig(*uri, config)
+		// 如果 URI 中已经包含 vhost，则使用 URI；否则使用 config 设置 vhost
+		config := amqp.Config{Properties: amqp.NewConnectionProperties()}
+		// 只有当 vhostName 不是默认值且 URI 中没有包含 vhost 时才设置
+		if vhostName != "/" && !strings.Contains(amqpURI, "/"+vhostName) {
+			config.Vhost = vhostName
+		}
+		config.Properties.SetClientConnectionName("sample-consumer")
+		conn, err = amqp.DialConfig(amqpURI, config)
 		if err != nil {
 			ErrLog.Fatalf("producer: error in dial: %s", err)
 		}
@@ -189,13 +193,14 @@ func (c *Consumer) Shutdown() error {
 	defer Log.Printf("AMQP shutdown OK")
 
 	// wait for handle() to exit
+	// 如果是正常退出（nil），则返回 nil；如果是异常，返回 error
 	return <-c.done
 }
 
 func handle(deliveries <-chan amqp.Delivery, done chan error) {
 	cleanup := func() {
 		Log.Printf("handle: deliveries channel closed")
-		done <- nil
+		done <- nil // 正常退出时发送 nil
 	}
 
 	defer cleanup()
