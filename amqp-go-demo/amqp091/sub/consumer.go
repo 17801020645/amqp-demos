@@ -182,11 +182,11 @@ func NewConsumer(amqpURI, exchange, exchangeType, queueName, key, ctag, vhostNam
 
 func (c *Consumer) Shutdown() error {
 	// will close() the deliveries channel
-	if err := c.channel.Cancel(c.tag, true); err != nil {
+	if err := c.channel.Cancel(c.tag, true); err != nil && !strings.Contains(err.Error(), "not open") {
 		return fmt.Errorf("Consumer cancel failed: %s", err)
 	}
 
-	if err := c.conn.Close(); err != nil {
+	if err := c.conn.Close(); err != nil && !strings.Contains(err.Error(), "not open") {
 		return fmt.Errorf("AMQP connection close error: %s", err)
 	}
 
