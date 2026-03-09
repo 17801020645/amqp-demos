@@ -13,7 +13,7 @@ run-consumer:
 run-producer:
 	go run amqp091/pub/producer.go \
 		-uri="$(or $(URI),amqp://MjpyYWJiaXRtcS1jbi04bGw0b3NxbmYwMTpMVEFJNXQ2REY0RDZkVTgyaERYRlI0QUw=:MkMxN0Q5REE4RDQ3MzNCRDJCNTlDNTI0NTU3RUNDRDA4MkQ4NzE0NzoxNzczMDI1Nzc0Njcx@rabbitmq-cn-8ll4osqnf01.cn-beijing.amqp-82.net.mq.amqp.aliyuncs.com:5672/yyh-mq)" \
-		-exchange="$(or $(EXCHANGE),yyh-exchange)" \
+		-exchange="$(or $(EXCHANGE),topic-ex)" \
 		-exchange-type="$(or $(EXCHANGE_TYPE),direct)" \
 		-queue="$(or $(QUEUE),yyh-queue)" \
 		-key="$(or $(KEY),yyh123456)" \
@@ -25,11 +25,23 @@ run-producer:
 run-consumer-091:
 	go run amqp091/sub/consumer.go \
 		-uri="$(or $(URI),amqp://MjpyYWJiaXRtcS1jbi04bGw0b3NxbmYwMTpMVEFJNXQ2REY0RDZkVTgyaERYRlI0QUw=:MkMxN0Q5REE4RDQ3MzNCRDJCNTlDNTI0NTU3RUNDRDA4MkQ4NzE0NzoxNzczMDI1Nzc0Njcx@rabbitmq-cn-8ll4osqnf01.cn-beijing.amqp-82.net.mq.amqp.aliyuncs.com:5672/yyh-mq)" \
-		-exchange="$(or $(EXCHANGE),yyh-exchange)" \
-		-exchange-type="$(or $(EXCHANGE_TYPE),direct)" \
-		-queue="$(or $(QUEUE),yyh-queue)" \
-		-key="$(or $(KEY),yyh123456)" \
-		-consumer-tag="$(or $(CONSUMER_TAG),simple-consumer)" \
+		-exchange="$(or $(EXCHANGE),topic-ex)" \
+		-exchange-type="$(or $(EXCHANGE_TYPE),topic)" \
+		-queue="$(or $(QUEUE),qa)" \
+		-key="$(or $(KEY),files.cn.hz.#)" \
+		-consumer-tag="$(or $(CONSUMER_TAG),qa-consumer)" \
+		-lifetime="$(or $(LIFETIME),0s)" \
+		-verbose="$(or $(VERBOSE),true)" \
+		-auto_ack="$(or $(AUTO_ACK),false)"
+
+run-consumer-092:
+	go run amqp091/sub/consumer.go \
+		-uri="$(or $(URI),amqp://MjpyYWJiaXRtcS1jbi04bGw0b3NxbmYwMTpMVEFJNXQ2REY0RDZkVTgyaERYRlI0QUw=:MkMxN0Q5REE4RDQ3MzNCRDJCNTlDNTI0NTU3RUNDRDA4MkQ4NzE0NzoxNzczMDI1Nzc0Njcx@rabbitmq-cn-8ll4osqnf01.cn-beijing.amqp-82.net.mq.amqp.aliyuncs.com:5672/yyh-mq)" \
+		-exchange="$(or $(EXCHANGE),topic-ex)" \
+		-exchange-type="$(or $(EXCHANGE_TYPE),topic)" \
+		-queue="$(or $(QUEUE),qb)" \
+		-key="$(or $(KEY),files.cn.*.store)" \
+		-consumer-tag="$(or $(CONSUMER_TAG),qb-consumer)" \
 		-lifetime="$(or $(LIFETIME),0s)" \
 		-verbose="$(or $(VERBOSE),true)" \
 		-auto_ack="$(or $(AUTO_ACK),false)"

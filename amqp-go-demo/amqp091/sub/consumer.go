@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -68,6 +69,7 @@ type Consumer struct {
 	channel *amqp.Channel
 	tag     string
 	done    chan error
+	handleWg sync.WaitGroup // 用于 Shutdown 等待 handle 退出，可重复 Wait
 }
 
 func SetupCloseHandler(consumer *Consumer) <-chan struct{} {
@@ -180,7 +182,8 @@ func NewConsumer(amqpURI, exchange, exchangeType, queueName, key, ctag, vhostNam
 		return nil, fmt.Errorf("Queue Consume: %s", err)
 	}
 
-	go handle(deliveries, c.done)
+	c.handleWg.Add(1)
+	go handle(deliveries, c.done, &c.handleWg)
 
 	return c, nil
 }
@@ -197,15 +200,20 @@ func (c *Consumer) Shutdown() error {
 
 	defer Log.Printf("AMQP shutdown OK")
 
-	// wait for handle() to exit
-	// 如果是正常退出（nil），则返回 nil；如果是异常，返回 error
-	return <-c.done
+	// 使用 WaitGroup 等待 handle 退出，可重复调用（handle 已退出时立即返回）
+	c.handleWg.Wait()
+	return nil
 }
 
-func handle(deliveries <-chan amqp.Delivery, done chan error) {
+func handle(deliveries <-chan amqp.Delivery, done chan error, wg *sync.WaitGroup) {
 	cleanup := func() {
 		Log.Printf("handle: deliveries channel closed")
-		done <- nil // 正常退出时发送 nil
+		select {
+		case done <- nil:
+		default:
+			// done 已被消费（如 main 已从 select 收到），避免阻塞
+		}
+		wg.Done()
 	}
 
 	defer cleanup()
